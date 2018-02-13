@@ -1,0 +1,1010 @@
+swagger: '2.0'
+info:
+  title: Bittrex REST API
+  description: >-
+    Bittrex provides a simple and powerful REST API to allow you to
+    programatically perform nearly all actions you can from our web interface.
+    All requests use the application/json content type and go over https. The
+    base url is https://bittrex.com/api/{version}/. All requests are GET
+    requests and all responses come in a default response object with the result
+    in the result field. Always check the success flag to ensure that your API
+    call succeeded.
+
+    We are currently restricting orders to 500 open orders and 200,000 orders a
+    day. We reserve the right to change these settings as we tune the system. If
+    you are affected by these limits as an active trader, please email
+    support@bittrex.com.
+
+    If you have any questions, feedback or recommendation for API support you
+    can post a question in our support center.
+  termsOfService: 'https://bittrex.com/Home/Terms'
+  contact:
+    name: Bittrex LLC
+    url: https://bittrex.zendesk.com/hc/en-us
+    email: support@bittrex.com
+  license:
+    name: '-'
+  version: 1.0.0
+host: bittrex.com
+basePath: /api/v1.1
+schemes:
+  - https
+
+securityDefinitions:
+  ApiSign:
+    type: apiKey
+    in: header
+    name: apisign
+
+externalDocs:
+  description: Bittrex API developer's guide.
+  url: 'https://bittrex.com/home/api'
+
+paths:
+  /public/getmarkets:
+    get:
+      summary: >-
+        Used to get the open and available trading markets at Bittrex
+        along with other meta data.
+      operationId: getMarkets
+      tags:
+        - public
+      responses:
+        '200':
+          description: An array of markets.
+          schema:
+            $ref: '#/definitions/Markets'
+  /public/getcurrencies:
+    get:
+      summary: >-
+        Used to get all supported currencies at Bittrex along with other meta
+        data.
+      operationId: getCurrencies
+      tags:
+        - public
+      responses:
+        '200':
+          description: An array of currencies.
+          schema:
+            $ref: '#/definitions/Currencies'
+  /public/getticker:
+    get:
+      summary: >-
+          Used to get the current tick values for a market.
+      operationId: getTicker
+      tags:
+        - public
+      responses:
+        '200':
+          description: Ticker data for the given market.
+          schema:
+            $ref: '#/definitions/Ticker'
+      parameters:
+        - $ref: '#/parameters/MarketParameter'
+  /public/getmarketsummaries:
+    get:
+      summary: >-
+          Used to get the last 24 hour summary of all active exchanges.
+      operationId: getMarketSummaries
+      tags:
+        - public
+      responses:
+        '200':
+          description: Market summary
+          schema:
+            $ref: '#/definitions/MarketSummaries'
+  /public/getmarketsummary:
+    get:
+      summary: >-
+          Used to get the last 24 hour summary of one active exchange.
+      operationId: getMarketSummary
+      tags:
+        - public
+      responses:
+        '200':
+          description: Market summary
+          schema:
+            $ref: '#/definitions/MarketSummaries'
+      parameters:
+        - $ref: '#/parameters/MarketParameter'
+  /public/getorderbook:
+    get:
+      summary: >-
+          Used to retrieve the orderbook for a given market.
+      operationId: getOrderBook
+      tags:
+        - public
+      responses:
+        '200':
+          description: Order book
+          schema:
+            $ref: '#/definitions/OrderBook'
+      parameters:
+        - $ref: '#/parameters/MarketParameter'
+        - $ref: '#/parameters/OrderBookTypeParameter'
+  /public/getmarkethistory:
+    get:
+      summary: >-
+        Used to retrieve the latest trades that have occured for a specific
+        market.
+      operationId: getMarketHistory
+      tags:
+        - public
+      responses:
+        '200':
+          description: Market history
+          schema:
+            $ref: '#/definitions/MarketHistory'
+      parameters:
+        - $ref: '#/parameters/MarketParameter'
+  /market/buylimit:
+    get:
+      summary: >-
+        Used to place a buy order in a specific market. Use buylimit to place
+        limit orders.
+      security:
+        - ApiSign: []
+      operationId: placeBuyLimitOrder
+      tags:
+        - market
+      responses:
+        '200':
+          description: Buy limit
+          schema:
+            $ref: '#/definitions/BuyLimit'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/MarketParameter'
+        - $ref: '#/parameters/QuantityParameter'
+        - $ref: '#/parameters/RateParameter'
+  /market/selllimit:
+    get:
+      summary: >-
+        Used to place an sell order in a specific market. Use selllimit to place
+        limit orders.
+      security:
+        - ApiSign: []
+      operationId: placeSellLimitOrder
+      tags:
+        - market
+      responses:
+        '200':
+          description: Sell limit
+          schema:
+            $ref: '#/definitions/SellLimit'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/MarketParameter'
+        - $ref: '#/parameters/QuantityParameter'
+        - $ref: '#/parameters/RateParameter'
+  /market/cancel:
+    get:
+      summary: >-
+          Used to cancel a buy or sell order.
+      security:
+        - ApiSign: []
+      operationId: cancelOrder
+      tags:
+        - market
+      responses:
+        '200':
+          description: Cancel order
+          schema:
+            $ref: '#/definitions/CancelOrder'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/UuidParameter'
+  /market/getopenorders:
+    get:
+      summary: >-
+        Get all orders that you currently have opened. A specific market can be
+        requested.
+      security:
+        - ApiSign: []
+      operationId: getOpenOrders
+      tags:
+        - market
+      responses:
+        '200':
+          description: Open orders
+          schema:
+            $ref: '#/definitions/OpenOrders'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/MarketParameter'
+  /account/getbalances:
+    get:
+      summary: >-
+          Used to retrieve all balances from your account.
+      security:
+        - ApiSign: []
+      operationId: getBalances
+      tags:
+        - account
+      responses:
+        '200':
+          description: Balances
+          schema:
+            $ref: '#/definitions/Balances'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+  /account/getbalance:
+    get:
+      summary: >-
+        Used to retrieve the balance from your account for a specific currency.
+      security:
+        - ApiSign: []
+      operationId: getBalance
+      tags:
+        - account
+      responses:
+        '200':
+          description: Specific balance
+          schema:
+            $ref: '#/definitions/Balance'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/CurrencyParameter'
+  /account/getdepositaddress:
+    get:
+      summary: >-
+        Used to retrieve or generate an address for a specific currency. If one
+        does not exist, the call will fail and return ADDRESS_GENERATING until
+        one is available.
+      security:
+        - ApiSign: []
+      operationId: getDepositAddress
+      tags:
+        - account
+      responses:
+        '200':
+          description: Deposit address
+          schema:
+            $ref: '#/definitions/DepositAddress'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/CurrencyParameter'
+  /account/withdraw:
+    get:
+      summary: >-
+        Used to withdraw funds from your account. Note: please account for
+        txfee.
+      security:
+        - ApiSign: []
+      operationId: withdraw
+      tags:
+        - account
+      responses:
+        '200':
+          description: Withdraw
+          schema:
+            $ref: '#/definitions/Withdraw'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/CurrencyParameter'
+        - $ref: '#/parameters/QuantityParameter'
+        - $ref: '#/parameters/AddressParameter'
+        - $ref: '#/parameters/PaymentIdParameter'
+  /account/getorder:
+    get:
+      summary: >-
+          Used to retrieve a single order by uuid.
+      security:
+        - ApiSign: []
+      operationId: getOrder
+      tags:
+        - account
+      responses:
+        '200':
+          description: Get specific order
+          schema:
+            $ref: '#/definitions/Order'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/UuidParameter'
+  /account/getorderhistory:
+    get:
+      summary: >-
+          Used to retrieve your order history.
+      security:
+        - ApiSign: []
+      operationId: getOrderHistory
+      tags:
+        - account
+      responses:
+        '200':
+          description: Get order history
+          schema:
+            $ref: '#/definitions/OrderHistory'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/OptionalMarketParameter'
+  /account/getwithdrawalhistory:
+    get:
+      summary: >-
+          Used to retrieve your withdrawal history.
+      security:
+        - ApiSign: []
+      operationId: getWithdrawalHistory
+      tags:
+        - account
+      responses:
+        '200':
+          description: Get withdrawal history
+          schema:
+            $ref: '#/definitions/WithdrawalHistory'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/OptionalCurrencyParameter'
+  /account/getdeposithistory:
+    get:
+      summary: >-
+          Used to retrieve your deposit history.
+      security:
+        - ApiSign: []
+      operationId: getDepositHistory
+      tags:
+        - account
+      responses:
+        '200':
+          description: Get deposit history
+          schema:
+            $ref: '#/definitions/DepositHistory'
+      parameters:
+        - $ref: '#/parameters/ApiKeyParameter'
+        - $ref: '#/parameters/NonceParameter'
+        - $ref: '#/parameters/OptionalCurrencyParameter'
+definitions:
+  Markets:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/Market'
+        default: null
+  Market:
+    properties:
+      MarketCurrency:
+        type: string
+      BaseCurrency:
+        type: string
+      MarketCurrencyLong:
+        type: string
+      BaseCurrencyLong:
+        type: string
+      MinTradeSize:
+        type: number
+        format: double
+      MarketName:
+        type: string
+      IsActive:
+        type: boolean
+      Created:
+        type: string
+        format: date-time
+  Currencies:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/Currency'
+        default: null
+  Currency:
+    properties:
+      Currency:
+        type: string
+      CurrencyLong:
+        type: string
+      MinConfirmation:
+        type: integer
+      TxFee:
+        type: number
+        format: double
+      IsActive:
+        type: boolean
+      CoinType:
+        type: string
+      BaseAddress:
+        type: string
+  Ticker:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        properties:
+          Bid:
+            type: number
+            format: double
+          Ask:
+            type: number
+            format: double
+          Last:
+            type: number
+            format: double
+        default: null
+  MarketSummaries:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/MarketSummary'
+        default: null
+  MarketSummary:
+    properties:
+      MarketName:
+        type: string
+      High:
+        type: number
+        format: double
+      Low:
+        type: number
+        format: double
+      Volume:
+        type: number
+        format: double
+      Last:
+        type: number
+        format: double
+      BaseVolume:
+        type: number
+        format: double
+      TimeStamp:
+        type: string
+        format: date-time
+      Bid:
+        type: number
+        format: double
+      Ask:
+        type: number
+        format: double
+      OpenBuyOrders:
+        type: integer
+      OpenSellOrders:
+        type: integer
+      PrevDay:
+        type: number
+        format: double
+      Created:
+        type: string
+        format: date-time
+      DisplayMarketName:
+        type: string
+        default: null
+  OrderBook:
+    type: object
+    discriminator: orderType
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      orderType:
+        type: string
+    required:
+    - orderType
+  OrderBookBoth:
+    allOf:
+    - $ref: '#/definitions/OrderBook'
+    - type: object
+      properties:
+        result:
+          properties:
+            buy:
+              type: array
+              items:
+                $ref: '#/definitions/OrderBookEntry'
+              default: null
+            sell:
+              type: array
+              items:
+                $ref: '#/definitions/OrderBookEntry'
+              default: null
+          default: null
+  OrderBookBuy:
+    allOf:
+    - $ref: '#/definitions/OrderBook'
+    - type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/definitions/OrderBookEntry'
+          default: null
+  OrderBookSell:
+    allOf:
+    - $ref: '#/definitions/OrderBook'
+    - type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/definitions/OrderBookEntry'
+          default: null
+  OrderBookEntry:
+    properties:
+      Quantity:
+        type: number
+        format: double
+      Rate:
+        type: number
+        format: double
+  MarketHistory:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/MarketHistoryEntry'
+        default: null
+  MarketHistoryEntry:
+    properties:
+      Id:
+        type: integer
+      TimeStamp:
+        type: string
+        format: date-time
+      Quantity:
+        type: number
+        format: double
+      Price:
+        type: number
+        format: double
+      Total:
+        type: number
+        format: double
+      FillType:
+        type: string
+      OrderType:
+        type: string
+  BuyLimit:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        properties:
+          uuid:
+            type: string
+            format: uuid
+        default: null
+  SellLimit:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        properties:
+          uuid:
+            type: string
+            format: uuid
+        default: null
+  CancelOrder:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        default: null
+  OpenOrders:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/OpenOrder'
+        default: null
+  OpenOrder:
+    properties:
+      Uuid:
+        type: string
+        format: uuid
+        default: null
+      OrderUuid:
+        type: string
+        format: uuid
+      Exchange:
+        type: string
+      OrderType:
+        type: string
+      Quantity:
+        type: number
+        format: double
+      QuantityRemaining:
+        type: number
+        format: double
+      Limit:
+        type: number
+        format: double
+      CommissionPaid:
+        type: number
+        format: double
+      Price:
+        type: number
+        format: double
+      PricePerUnit:
+        default: null
+      Opened:
+        type: string
+        format: date-time
+      Closed:
+        default: null
+      CancelInitiated:
+        type: boolean
+      ImmediateOrCancel:
+        type: boolean
+      IsConditional:
+        type: boolean
+      Condition:
+        default: null
+      ConditionTarget:
+        default: null
+  Balances:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/BalanceItem'
+        default: null
+  Balance:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        $ref: '#/definitions/BalanceItem'
+        default: null
+  BalanceItem:
+    properties:
+      Currency:
+        type: string
+      Balance:
+        type: number
+        format: double
+      Available:
+        type: number
+        format: double
+      Pending:
+        type: number
+        format: double
+      CryptoAddress:
+        type: string
+      Requested:
+        type: boolean
+      Uuid:
+        type: string
+        format: uuid
+        default: null
+  DepositAddress:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        properties:
+          Currency:
+            type: string
+          Address:
+            type: string
+        default: null
+  Withdraw:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        properties:
+          uuid:
+            type: string
+            format: uuid
+        default: null
+  Order:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        properties:
+          AccountId:
+            default: null
+          OrderUuid:
+            type: string
+            format: uuid
+          Exchange:
+            type: string
+          Type:
+            type: string
+          Quantity:
+            type: number
+            format: double
+          QuantityRemaining:
+            type: number
+            format: double
+          Limit:
+            type: number
+            format: double
+          Reserved:
+            type: number
+            format: double
+          ReserveRemaining:
+            type: number
+            format: double
+          CommissionReserved:
+            type: number
+            format: double
+          CommissionReserveRemaining:
+            type: number
+            format: double
+          CommissionPaid:
+            type: number
+            format: double
+          Price:
+            type: number
+            format: double
+          PricePerUnit:
+            default: null
+          Opened:
+            type: string
+            format: date-time
+          Closed:
+            default: null
+          IsOpen:
+            type: boolean
+          Sentinel:
+            type: string
+            format: uuid
+          CancelInitiated:
+            type: boolean
+          ImmediateOrCancel:
+            type: boolean
+          IsConditional:
+            type: boolean
+          Condition:
+            type: string
+          ConditionTarget:
+            default: null
+        default: null
+  OrderHistory:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/OrderHistoryItem'
+        default: null
+  OrderHistoryItem:
+    properties:
+      OrderUuid:
+        type: string
+        format: uuid
+      Exchange:
+        type: string
+      TimeStamp:
+        type: string
+        format: date-time
+      OrderType:
+        type: string
+      Limit:
+        type: number
+        format: double
+      Quantity:
+        type: number
+        format: double
+      QuantityRemaining:
+        type: number
+        format: double
+      Commission:
+        type: number
+        format: double
+      Price:
+        type: number
+        format: double
+      PricePerUnit:
+        default: null
+      IsConditional:
+        type: boolean
+      Condition:
+        default: null
+      ConditionTarget:
+        default: null
+      ImmediateOrCancel:
+        type: boolean
+  WithdrawalHistory:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/WithdrawalHistoryItem'
+        default: null
+  WithdrawalHistoryItem:
+    properties:
+      PaymentUuid:
+        type: string
+        format: uuid
+      Currency:
+        type: string
+      Amount:
+        type: number
+        format: double
+      Address:
+        type: string
+      Opened:
+        type: string
+        format: date-time
+      Authorized:
+        type: boolean
+      PendingPayment:
+        type: boolean
+      TxCost:
+        type: number
+        format: double
+      TxId:
+        default: null
+      Canceled:
+        type: boolean
+      InvalidAddress:
+        type: boolean
+  DepositHistory:
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/DepositHistoryItem'
+        default: null
+  DepositHistoryItem:
+    properties:
+      PaymentUuid:
+        type: string
+        format: uuid
+      Currency:
+        type: string
+      Amount:
+        type: number
+        format: double
+      Address:
+        type: string
+      Opened:
+        type: string
+        format: date-time
+      Authorized:
+        type: boolean
+      PendingPayment:
+        type: boolean
+      TxCost:
+        type: number
+        format: double
+      TxId:
+        type: string
+      Canceled:
+        type: boolean
+      InvalidAddress:
+        type: boolean
+parameters:
+  MarketParameter:
+    name: market
+    in: query
+    description: A string literal for the market.
+    required: true
+    type: string
+  OptionalMarketParameter:
+    name: market
+    in: query
+    description: A string literal for the market.
+    required: false
+    type: string
+  OrderBookTypeParameter:
+    name: type
+    in: query
+    description: >-
+      Buy, sell or both to identify the type of orderbook to return.
+    required: true
+    type: string
+  QuantityParameter:
+    name: quantity
+    in: query
+    description: A quantity of coins.
+    required: true
+    type: number
+    format: double
+  RateParameter:
+    name: rate
+    in: query
+    description: The rate at which to place the order.
+    required: true
+    type: number
+    format: double
+  ApiKeyParameter:
+    name: apikey
+    in: query
+    description: The personal api key.
+    required: true
+    type: string
+  NonceParameter:
+    name: nonce
+    in: query
+    description: The timestamp of the request.
+    required: false
+    type: integer
+  UuidParameter:
+    name: uuid
+    in: query
+    description: The uuid of buy or sell order.
+    required: true
+    type: string
+    format: uuid
+  CurrencyParameter:
+    name: currency
+    in: query
+    description: A string literal for the currency.
+    required: true
+    type: string
+  OptionalCurrencyParameter:
+    name: currency
+    in: query
+    description: A string literal for the currency.
+    required: false
+    type: string
+  AddressParameter:
+    name: address
+    in: query
+    description: The address where to send the funds.
+    required: true
+    type: string
+  PaymentIdParameter:
+    name: paymentid
+    in: query
+    description: Used for CryptoNotes/BitShareX/Nxt (memo/paymentid).
+    required: false
+    type: string
